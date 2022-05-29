@@ -6,8 +6,8 @@ class UsersController {
       try {
         let {body} = req;
         body.password = body.encryptedData;
-        debugger
         let result = await Users.create(body);
+        delete result?.password;
         if(result){
             res.status(201).json({
                 status:"sucess",
@@ -44,6 +44,7 @@ class UsersController {
   async getById(req, res, next) {
     try {
       let data = await Users.findOne({ _id: req.params.id });
+      delete data?.password
       if (data) {
         res.status(200).json({
           status: "success",
@@ -61,6 +62,31 @@ class UsersController {
         message: error.message,
       });
     }
+  }
+  async login(req, res, next) {
+      try {
+          let {body} = req;
+          body.password = body.encryptedData;
+          let data = await Users.findOne({email: body?.email});
+          
+          if(!data||data.password !== body.password) {
+            res.status(401).json({
+                status:"error",
+                message:"Access denied"
+            })
+            return;
+          }
+          delete data.password;
+          res.json({
+              status:"success",
+              data:data,
+          })
+      } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: error.message,
+          });
+      }
   }
 }
 

@@ -36,7 +36,7 @@ class RC4Middleware {
         JSON.stringify(asciiArr),
         "KEY",
       ]);
-      let ok = process.stdout.on("data", function (data) {
+      process.stdout.on("data", function (data) {
         let decryptedData = data.toString()?.replace("\r\n", "");
         dataEncrypted.content = decryptedData;
         resultSocket.push(dataEncrypted);
