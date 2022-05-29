@@ -1,13 +1,12 @@
 const { type } = require("express/lib/response");
-const Users = require("../model/users");
+const Emails = require("../model/emails");
 
-class UsersController {
+class EmailsController {
   async create(req, res, next) {
       try {
         let {body} = req;
-        body.password = body.encryptedData;
-        debugger
-        let result = await Users.create(body);
+        body.content = req.body.encryptedData;
+        let result = await Emails.create(body);
         if(result){
             res.status(201).json({
                 status:"sucess",
@@ -27,7 +26,7 @@ class UsersController {
   }
   async search(req, res, next) {
     try {
-      let data = await Users.find({});
+      let data = await Emails.find({});
       if (data) {
         res.status(200).json({
           status: "success",
@@ -43,16 +42,14 @@ class UsersController {
   }
   async getById(req, res, next) {
     try {
-      let data = await Users.findOne({ _id: req.params.id });
+      let data = await Emails.findOne({ _id: req.params.id });
       if (data) {
-        res.status(200).json({
-          status: "success",
-          data: data,
-        });
+        res.locals.dataEncrypted = data;
+        next();
       } else {
         res.status(404).json({
           status: "error",
-          message: "No user found!",
+          message: "No Emails found!",
         });
       }
     } catch (error) {
@@ -64,4 +61,4 @@ class UsersController {
   }
 }
 
-module.exports = new UsersController();
+module.exports = new EmailsController;
