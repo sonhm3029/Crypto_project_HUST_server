@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 
 const emailSchema = new Schema({
     content: {type: String},
+    title:{type:String},
     image: {type: String},
     senderId:{},
     receiverId:{},

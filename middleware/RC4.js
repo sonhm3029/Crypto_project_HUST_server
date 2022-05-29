@@ -23,30 +23,34 @@ class RC4Middleware {
     });
   }
   async decrypt(req, res, next) {
-    let { dataEncrypted } = res.locals;
-    let cipherText = dataEncrypted?.content;
-    let asciiArr = cipherText
-      ?.split("")
-      ?.map((item, index) => cipherText.charCodeAt(index));
-    var process = spawn("python", [
-      "./rc4.py",
-      "decrypt",
-      JSON.stringify(asciiArr),
-      "KEY",
-    ]);
-    process.stdout.on("data", function (data) {
-      let decyptedData = data.toString()?.replace("\r\n", "");
-
-      dataEncrypted.content = decyptedData;
-      res.json({
-        status: "success",
-        data: dataEncrypted,
+    let { dataEncryptedArr } = res.locals;
+    let resultSocket = [];
+    dataEncryptedArr = dataEncryptedArr?.map((dataEncrypted, index) => {
+      let cipherText = dataEncrypted?.content;
+      let asciiArr = cipherText
+        ?.split("")
+        ?.map((item, index) => cipherText.charCodeAt(index));
+      var process = spawn("python", [
+        "./rc4.py",
+        "decrypt",
+        JSON.stringify(asciiArr),
+        "KEY",
+      ]);
+      let ok = process.stdout.on("data", function (data) {
+        let decryptedData = data.toString()?.replace("\r\n", "");
+        dataEncrypted.content = decryptedData;
+        resultSocket.push(dataEncrypted);
+        if (++index === dataEncryptedArr?.length) {
+          if (dataEncryptedArr?.length === 1) {
+            resultSocket = resultSocket[0];
+          }
+          res.json({
+            status: "success",
+            data: resultSocket,
+          });
+        }
       });
     });
-  }
-  test(req, res, next) {
-    req.body.id = 10;
-    next();
   }
 }
 
