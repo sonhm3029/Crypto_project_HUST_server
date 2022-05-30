@@ -6,8 +6,8 @@ const emailSchema = new Schema({
     content: {type: String},
     title:{type:String},
     image: {type: String},
-    senderId:{},
-    receiverId:{},
+    senderId:{type:mongoose.Types.ObjectId},
+    receiverId:{type:mongoose.Types.ObjectId},
 }, {
     timestamps:true
 });

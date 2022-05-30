@@ -1,5 +1,6 @@
 const { type } = require("express/lib/response");
 const Emails = require("../model/emails");
+const mongoose = require('mongoose');
 
 class EmailsController {
   async create(req, res, next) {
@@ -60,7 +61,49 @@ class EmailsController {
   async getBySenderId(req, res, next) {
     try {
       let senderId = req?.query?.id;
-      let arrData = await Emails.find({ senderId: senderId });
+      // let arrData = await Emails.find({ senderId: senderId });
+      let arrData = await Emails.aggregate([
+        {
+          "$match": {
+            senderId:mongoose.Types.ObjectId(senderId)
+          }
+        },
+        {
+          "$lookup":{
+            from:"users",
+            localField:"senderId",
+            foreignField:"_id",
+            as: "sender"
+          }
+        },
+        {
+          "$unwind":"$sender"
+        },
+        {
+          "$lookup":{
+            from:"users",
+            localField:"receiverId",
+            foreignField:"_id",
+            as: "receiver"
+          }
+        },
+        {
+          "$unwind":"$receiver"
+        },
+        {
+          "$project": {
+            "_id":1,
+            "content":1,
+            "title":1,
+            "createdAt":1,
+            "sender._id":1,
+            "sender.email":1,
+            "receiver._id":1,
+            "receiver.email":1
+          }
+        },
+      ]);
+      console.log(arrData);
       if (arrData?.length > 0) {
         res.locals.dataEncryptedArr = arrData;
         next();
@@ -80,7 +123,47 @@ class EmailsController {
   async getByReceiverId(req, res, next) {
     try {
       let receiverId = req?.query?.id;
-      let arrData = await Emails.find({ receiverId: receiverId });
+      let arrData = await Emails.aggregate([
+        {
+          "$match": {
+            receiverId:mongoose.Types.ObjectId(receiverId)
+          }
+        },
+        {
+          "$lookup":{
+            from:"users",
+            localField:"senderId",
+            foreignField:"_id",
+            as: "sender"
+          }
+        },
+        {
+          "$unwind":"$sender"
+        },
+        {
+          "$lookup":{
+            from:"users",
+            localField:"receiverId",
+            foreignField:"_id",
+            as: "receiver"
+          }
+        },
+        {
+          "$unwind":"$receiver"
+        },
+        {
+          "$project": {
+            "_id":1,
+            "content":1,
+            "title":1,
+            "createdAt":1,
+            "sender._id":1,
+            "sender.email":1,
+            "receiver._id":1,
+            "receiver.email":1
+          }
+        },
+      ])
       if (arrData?.length > 0) {
         res.locals.dataEncryptedArr = arrData;
         next();

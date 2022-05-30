@@ -1,6 +1,7 @@
 const { type } = require("express/lib/response");
 const Users = require("../model/users");
 
+
 class UsersController {
   async create(req, res, next) {
       try {
