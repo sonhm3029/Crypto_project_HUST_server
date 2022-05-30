@@ -61,9 +61,14 @@ class EmailsController {
     try {
       let senderId = req?.query?.id;
       let arrData = await Emails.find({ senderId: senderId });
-      if(arrData?.length > 0) {
-          res.locals.dataEncryptedArr = arrData;
-          next();
+      if (arrData?.length > 0) {
+        res.locals.dataEncryptedArr = arrData;
+        next();
+      } else {
+        res.json({
+          status: "success",
+          data: [],
+        });
       }
     } catch (error) {
       res.status(400).json({
@@ -76,9 +81,14 @@ class EmailsController {
     try {
       let receiverId = req?.query?.id;
       let arrData = await Emails.find({ receiverId: receiverId });
-      if(arrData?.length > 0) {
-          res.locals.dataEncryptedArr = arrData;
-          next();
+      if (arrData?.length > 0) {
+        res.locals.dataEncryptedArr = arrData;
+        next();
+      } else {
+        res.json({
+          status: "success",
+          data: [],
+        });
       }
     } catch (error) {
       res.status(400).json({
